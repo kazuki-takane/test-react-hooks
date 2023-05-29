@@ -1,7 +1,5 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
-
-const todoDataUrl = "http://localhost:3100/todos";
+import { useRef } from "react";
+import { useTodo } from "../hooks/useTodo";
 
 //todoTitleコンポーネント
 const TodoTitle = ({ title, as }) => {
@@ -36,17 +34,9 @@ const TodoList = ({ todoList }) => {
 };
 
 function App() {
-  const [todoList, setTodoList] = useState([]);
+  const { todoList, addTodoListItem } = useTodo();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await axios.get(todoDataUrl);
-
-      setTodoList(response.data);
-    };
-
-    fetchData();
-  }, []);
+  const inputEl = useRef(null);
 
   const inCompletedList = todoList.filter((todo) => {
     return !todo.done;
@@ -56,12 +46,20 @@ function App() {
     return todo.done;
   });
 
+  const handleAddTodoListItem = () => {
+
+    if (inputEl.current.value === "") return;
+
+    addTodoListItem(inputEl.current.value);
+    inputEl.current.value = "";
+  };
+
   return (
     <>
       <TodoTitle title="TODO進捗管理" as="h1" />
-      <textarea />
+      <textarea ref={inputEl} />
 
-      <button>+ TODOを追加</button>
+      <button onClick={handleAddTodoListItem}>+ TODOを追加</button>
       <TodoTitle title="未完了TODOリスト" as="h2" />
       <TodoList todoList={inCompletedList} />
       <TodoTitle title="完了TODOリスト" as="h2" />
